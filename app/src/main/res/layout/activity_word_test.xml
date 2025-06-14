@@ -1,84 +1,259 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/test_gradient_bg">
 
-    <TextView
-        android:id="@+id/test_word"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#5677fc"
-        android:paddingBottom="24dp"
-        android:paddingLeft="16dp"
-        android:paddingTop="48dp"
-        android:text="word"
-        android:textColor="#ffffff"
-        android:textSize="45sp"
-        android:textStyle="bold"/>
-
-    <TextView
-        android:id="@+id/choose_a"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/test_word"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="32dp"
-        android:clickable="true"
-        android:text="「A」"
-        android:textSize="20sp"/>
-
-    <TextView
-        android:id="@+id/choose_b"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/choose_a"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="24dp"
-        android:clickable="true"
-        android:text="「B」"
-        android:textSize="20sp"/>
-
-    <TextView
-        android:id="@+id/choose_c"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/choose_b"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="24dp"
-        android:clickable="true"
-        android:text="「C」"
-        android:textSize="20sp"/>
-
-    <TextView
-        android:id="@+id/choose_d"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/choose_c"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="24dp"
-        android:clickable="true"
-        android:text="「D」"
-        android:textSize="20sp"/>
-
+    <!-- 顶部进度条 -->
     <LinearLayout
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_alignParentBottom="true"
+        android:id="@+id/progress_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#455ede"
-        android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="#AA000000">
+
+        <TextView
+            android:id="@+id/question_progress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="题目 1/10"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
         <TextView
             android:id="@+id/score_view"
-            android:textSize="40sp"
-            android:textColor="#ffffff"
-            android:text="Score:"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:text="Score: 0"
+            android:textColor="#FFD700"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
     </LinearLayout>
+
+    <!-- 进度条 -->
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_below="@id/progress_layout"
+        android:max="10"
+        android:progress="1"
+        android:progressTint="#4CAF50"
+        android:progressBackgroundTint="#E0E0E0"/>
+
+    <!-- 单词显示卡片 -->
+    <LinearLayout
+        android:id="@+id/word_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/progress_bar"
+        android:layout_margin="20dp"
+        android:background="#FFFFFF"
+        android:elevation="8dp"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- 单词区域 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/test_word"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="apple"
+                android:textColor="#2C3E50"
+                android:textSize="42sp"
+                android:textStyle="bold"/>
+
+            <!-- 发音按钮 -->
+            <ImageView
+                android:id="@+id/speak_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="8dp"
+                android:src="@android:drawable/ic_lock_silent_mode_off"
+                android:tint="#4A90E2"/>
+        </LinearLayout>
+
+        <!-- 提示文本 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:text="请选择正确的中文释义"
+            android:textColor="#7F8C8D"
+            android:textSize="14sp"/>
+
+    </LinearLayout>
+
+    <!-- 选项区域 -->
+    <LinearLayout
+        android:id="@+id/choices_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/word_card"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical">
+
+        <!-- 选项A -->
+        <LinearLayout
+            android:id="@+id/choose_a"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/option_selector"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="#E3F2FD"
+                android:gravity="center"
+                android:text="A"
+                android:textColor="#2196F3"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/choose_a_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_weight="1"
+                android:text="苹果"
+                android:textColor="#2C3E50"
+                android:textSize="18sp"/>
+        </LinearLayout>
+
+        <!-- 选项B -->
+        <LinearLayout
+            android:id="@+id/choose_b"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/option_selector"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="#FFF3E0"
+                android:gravity="center"
+                android:text="B"
+                android:textColor="#FF9800"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/choose_b_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_weight="1"
+                android:text="香蕉"
+                android:textColor="#2C3E50"
+                android:textSize="18sp"/>
+        </LinearLayout>
+
+        <!-- 选项C -->
+        <LinearLayout
+            android:id="@+id/choose_c"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/option_selector"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="#E8F5E8"
+                android:gravity="center"
+                android:text="C"
+                android:textColor="#4CAF50"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/choose_c_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_weight="1"
+                android:text="橙子"
+                android:textColor="#2C3E50"
+                android:textSize="18sp"/>
+        </LinearLayout>
+
+        <!-- 选项D -->
+        <LinearLayout
+            android:id="@+id/choose_d"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/option_selector"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="#FCE4EC"
+                android:gravity="center"
+                android:text="D"
+                android:textColor="#E91E63"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/choose_d_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_weight="1"
+                android:text="葡萄"
+                android:textColor="#2C3E50"
+                android:textSize="18sp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 底部提示 -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:text="💡 点击喇叭图标可以听发音"
+        android:textColor="#7F8C8D"
+        android:textSize="12sp"/>
+
 </RelativeLayout>
