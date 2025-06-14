@@ -145,7 +145,7 @@ public class LearnWordActivity extends AppCompatActivity implements TextToSpeech
                 Toast.makeText(this, "语音引擎不支持英语，将使用在线发音", Toast.LENGTH_SHORT).show();
             } else {
                 // 设置语速和音调
-                textToSpeech.setSpeechRate(0.5f); // 稍慢一点，便于学习
+                textToSpeech.setSpeechRate(0.8f); // 稍慢一点，便于学习
                 textToSpeech.setPitch(1.0f);
                 isTTSInitialized = true;
                 Log.i("TTS", "语音引擎初始化成功");

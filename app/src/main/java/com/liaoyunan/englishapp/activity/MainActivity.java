@@ -7,7 +7,8 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.CalendarView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,23 +19,25 @@ import com.liaoyunan.englishapp.R;
 import com.liaoyunan.englishapp.db.WordDB;
 import com.liaoyunan.englishapp.model.Word;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView mTextView;
+    private CalendarView calendarView;
 
     private String result = null;
 
     // GitHub Raw 文件的 baseUrl
     private String baseUrl = "https://raw.githubusercontent.com/";
 
-    private String url4Path = "/wenbsu/vocabulary/master/2025_06_14.json";
-
-    private String url6Path = "/wenbsu/vocabulary/master/2025_06_17.json";
-
-    private String currentUrlPath = "/wenbsu/vocabulary/master/2025_06_14.json"; // 默认CET4
+    // 动态生成的路径，基于选择的日期
+    private String currentUrlPath;
 
     private WordDB wordDB;
 
@@ -44,20 +47,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private List<Word.RECORDSBean> wordBookList = new ArrayList<Word.RECORDSBean>();
 
-    private Button wordBookBtn;
-
-    private Button wordViewBtn;
-
-    private Button wordTestBtn;
-
-    private Button cet4Btn;
-
-    private Button cet6Btn;
-
     private TextView learnMax;
 
     // RetrofitRequest 实例
     private RetrofitRequest<Word> retrofitRequest;
+
+    // 日期格式化器
+    private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy_MM_dd", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +67,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mTextView = (TextView) findViewById(R.id.text_view);
 
-        wordBookBtn = (Button) findViewById(R.id.word_book_btn);
+        // 初始化日历控件
+        calendarView = (CalendarView) findViewById(R.id.calendar_view);
 
+        // 设置日历选择监听器
+        calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            @Override
+            public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
+                // 注意：月份从0开始，所以需要+1
+                Calendar selectedDate = Calendar.getInstance();
+                selectedDate.set(year, month, dayOfMonth);
+
+                String selectedDateStr = dateFormatter.format(selectedDate.getTime());
+                Log.d("MainActivity", "选择的日期: " + selectedDateStr);
+
+                // 根据选择的日期加载单词
+                loadWordsForDate(selectedDateStr);
+            }
+        });
+
+        // 修改为LinearLayout的点击事件
+        LinearLayout wordBookBtn = findViewById(R.id.word_book_btn);
         wordBookBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -81,8 +96,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        wordViewBtn = (Button) findViewById(R.id.view_word_btn);
-
+        LinearLayout wordViewBtn = findViewById(R.id.view_word_btn);
         wordViewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,8 +105,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        wordTestBtn = (Button) findViewById(R.id.word_test_btn);
-
+        LinearLayout wordTestBtn = findViewById(R.id.word_test_btn);
         wordTestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,13 +114,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        cet4Btn = (Button) findViewById(R.id.get_CET4_btn);
-        cet4Btn.setOnClickListener(this);
-        cet6Btn = (Button) findViewById(R.id.get_CET6_btn);
-        cet6Btn.setOnClickListener(this);
-
         learnMax = (TextView) findViewById(R.id.learn_max);
         init();
+
+        // ✅ 立刻加载今天的单词（不等用户点击）
+        String today = dateFormatter.format(new Date());
+        loadWordsForDate(today);
     }
 
     /**
@@ -116,12 +128,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void init() {
         wordList = wordDB.loadWordLib();
         if (wordList.size() <= 0) {
-            //wordDB.createTestData();//添加了测试数据
-            getWordLib();
+            // 初始化时加载今天的单词
+            String today = dateFormatter.format(new Date());
+            loadWordsForDate(today);
         }
         if (wordDB.loadMaxIndex() >= 0){
             learnMax.setText("总共学习了：" + wordDB.loadMaxIndex() + "个单词");
         }
+    }
+
+    /**
+     * 根据指定日期加载单词
+     * @param dateStr 格式为 yyyy_MM_dd 的日期字符串
+     */
+    private void loadWordsForDate(String dateStr) {
+        // 构建对应日期的URL路径
+        currentUrlPath = "/wenbsu/vocabulary/master/" + dateStr + ".json";
+
+        // 清空当前词库
+        wordDB.deleteAll();
+
+        // 显示加载状态
+        mTextView.setText("⏳ 正在加载 " + dateStr + " 的单词库...");
+        mTextView.setVisibility(View.VISIBLE);
+
+        // 重置学习索引
+        wordDB.saveIndex(0);
+
+        // 获取单词库
+        getWordLib();
     }
 
     /**
@@ -141,7 +176,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         // 请求成功
                         myWord = word;
                         wordDB.saveWordLib(myWord);
-                        mTextView.setText("词库下载成功");
+                        mTextView.setText("✅ 词库下载成功");
+                        mTextView.setVisibility(View.VISIBLE);
 
                         // 可选：记录日志
                         Log.d("MainActivity", "词库下载成功，单词数量: " +
@@ -153,10 +189,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onError(String error) {
                         // 请求失败
                         Log.e("MainActivity", "词库下载失败: " + error);
-                        mTextView.setText("词库下载出错: " + error);
+                        mTextView.setText("❌ 词库下载出错: " + error);
+                        mTextView.setVisibility(View.VISIBLE);
 
                         // 显示错误提示
-                        Toast.makeText(MainActivity.this, "下载失败，请检查网络连接", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "下载失败，请检查网络连接或该日期的词库是否存在", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -186,21 +223,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        wordDB.deleteAll();
-        int id = v.getId();
-
-        if (id == R.id.get_CET4_btn) {
-            currentUrlPath = url4Path;
-            mTextView.setText("正在下载CET4词库...");
-            Log.d("MainActivity", "开始下载CET4词库");
-        } else if (id == R.id.get_CET6_btn) {
-            currentUrlPath = url6Path;
-            mTextView.setText("正在下载CET6词库...");
-            Log.d("MainActivity", "开始下载CET6词库");
-        }
-
-        wordDB.saveIndex(0);
-        getWordLib();
+        // 这个方法现在不再需要，因为已经移除了CET4和CET6按钮
+        // 保留这个方法以防其他地方还有使用
     }
 
     /**
