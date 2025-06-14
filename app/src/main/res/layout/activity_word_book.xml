@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/word"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#5677fc"
+        android:paddingLeft="16dp"
+        android:paddingTop="48dp"
+        android:text="word"
+        android:textColor="#ffffff"
+        android:textSize="45sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/yinbiao"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/word"
+        android:background="#5677fc"
+        android:paddingBottom="40dp"
+        android:paddingLeft="32dp"
+        android:paddingTop="24dp"
+        android:text="「音标」"
+        android:textColor="#ffffff"
+        android:textSize="24sp"/>
+
+    <TextView
+        android:id="@+id/meaning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/yinbiao"
+        android:paddingBottom="16dp"
+        android:paddingLeft="32dp"
+        android:paddingTop="32dp"
+        android:text="「单词释义」"
+        android:textSize="24sp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/word"
+        android:gravity="end"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <ImageButton
+            android:id="@+id/btn_play"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/play_word_pronunciation"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/play_btn" />
+    </LinearLayout>
+
+    <WebView
+        android:id="@+id/web_view"
+        android:layout_width="56dp"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+    </WebView>
+
+    <LinearLayout
+        android:id="@+id/word_list_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:background="#eeeeee"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/show_hide_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:background="#FFFFFF"
+            android:text="「单词列表」"/>
+
+        <ListView
+            android:id="@+id/word_list1"
+            android:layout_width="match_parent"
+            android:layout_height="320dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:background="@android:color/white"
+            android:visibility="gone">
+        </ListView>
+
+        <com.liaoyunan.englishapp.SlideCutListView
+            android:id="@+id/word_list"
+            android:layout_width="match_parent"
+            android:layout_height="320dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:background="@android:color/white"
+            android:visibility="gone">
+        </com.liaoyunan.englishapp.SlideCutListView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#455ede"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#0000"
+                android:onClick="previousWord"
+                android:paddingBottom="8dp"
+                android:paddingLeft="24dp"
+                android:paddingRight="24dp"
+                android:paddingTop="8dp"
+                android:src="@drawable/left_btn"/>
+
+            <ImageButton
+                android:id="@+id/add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#0000"
+                android:onClick="addToCollect"
+                android:paddingBottom="8dp"
+                android:paddingLeft="24dp"
+                android:paddingRight="24dp"
+                android:paddingTop="8dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/add_button"/>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#0000"
+                android:onClick="nextWord"
+                android:paddingBottom="8dp"
+                android:paddingLeft="24dp"
+                android:paddingRight="24dp"
+                android:paddingTop="8dp"
+                android:src="@drawable/right_btn"/>
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

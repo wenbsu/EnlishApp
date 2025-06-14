@@ -1,0 +1,42 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace 'com.liaoyunan.englishapp' // 新版本必须加 namespace
+    compileSdk 35
+    buildToolsVersion "36.0.0"
+
+    defaultConfig {
+        applicationId "com.liaoyunan.englishapp"
+        minSdkVersion 19
+        targetSdkVersion 35
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true // 启用 MultiDex
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    testOptions {
+        unitTests.includeAndroidResources = true
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation 'androidx.test.ext:junit:1.2.1'
+    implementation 'androidx.test:core:1.6.1'
+    testImplementation 'junit:junit:4.13.2'
+
+    // 使用 androidx 兼容库
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    // 网络请求retrofit2
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
+}
