@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -20,14 +21,14 @@ import com.liaoyunan.englishapp.model.WordTest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
- * 单词测试Activity - 优化版本
+ * 单词测试Activity
  */
 public class WordTestActivity extends AppCompatActivity implements View.OnClickListener {
 
     private WordDB wordDB;
+    private WebView mWebView;
     private List<Word.RECORDSBean> mRECORDSBeanList = new ArrayList<>();
     private List<WordTest.Test> mTests = new ArrayList<>();
     private int mIndex;
@@ -46,10 +47,6 @@ public class WordTestActivity extends AppCompatActivity implements View.OnClickL
     private ProgressBar progressBar;
     private ImageView speakButton;
 
-    // TTS语音合成
-    private TextToSpeech textToSpeech;
-    private boolean isTTSReady = false;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +54,6 @@ public class WordTestActivity extends AppCompatActivity implements View.OnClickL
 
         initViews();
         initData();
-        initTTS();
         getTest();
     }
 
@@ -65,6 +61,7 @@ public class WordTestActivity extends AppCompatActivity implements View.OnClickL
         // 基本控件
         wordView = findViewById(R.id.test_word);
         scoreView = findViewById(R.id.score_view);
+        mWebView = findViewById(R.id.test_web_view);
         questionProgress = findViewById(R.id.question_progress);
         progressBar = findViewById(R.id.progress_bar);
         speakButton = findViewById(R.id.speak_button);
@@ -98,35 +95,14 @@ public class WordTestActivity extends AppCompatActivity implements View.OnClickL
         mIndex = wordDB.loadIndex();
     }
 
-    private void initTTS() {
-        textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status == TextToSpeech.SUCCESS) {
-                    int result = textToSpeech.setLanguage(Locale.US);
-                    if (result == TextToSpeech.LANG_MISSING_DATA ||
-                            result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                        Toast.makeText(WordTestActivity.this, "语音功能不支持", Toast.LENGTH_SHORT).show();
-                        speakButton.setVisibility(View.GONE);
-                    } else {
-                        isTTSReady = true;
-                        // 自动播放第一个单词
-                        speakWord(currentWord);
-                    }
-                } else {
-                    Toast.makeText(WordTestActivity.this, "语音初始化失败", Toast.LENGTH_SHORT).show();
-                    speakButton.setVisibility(View.GONE);
-                }
-            }
-        });
-    }
-
-    private void speakWord(String word) {
-        if (isTTSReady && word != null && !word.isEmpty()) {
-            textToSpeech.speak(word, TextToSpeech.QUEUE_FLUSH, null, null);
+    /**
+     * 播放单词发音
+     */
+    private void playWord(String word) {
+        if (word != null && !word.isEmpty()) {
+            mWebView.loadUrl("http://dict.youdao.com/dictvoice?type=2&audio=" + word);
         }
     }
-
     private void updateProgress() {
         questionProgress.setText("题目 " + (testIndex + 1) + "/10");
         progressBar.setProgress(testIndex + 1);
@@ -179,7 +155,7 @@ public class WordTestActivity extends AppCompatActivity implements View.OnClickL
         resetChoiceStyles();
 
         // 自动播放单词发音
-        speakWord(currentWord);
+        playWord(currentWord);
 
         // 更新进度
         updateProgress();
@@ -226,7 +202,7 @@ public class WordTestActivity extends AppCompatActivity implements View.OnClickL
 
         int id = v.getId();
         if (id == R.id.speak_button) {
-            speakWord(currentWord);
+            playWord(currentWord);
         } else if (id == R.id.choose_a) {
             testAnswer(R.id.choose_a);
         } else if (id == R.id.choose_b) {
@@ -283,14 +259,5 @@ public class WordTestActivity extends AppCompatActivity implements View.OnClickL
                 chooseD.setBackgroundColor(0xFFF44336);
             }
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (textToSpeech != null) {
-            textToSpeech.stop();
-            textToSpeech.shutdown();
-        }
-        super.onDestroy();
     }
 }

@@ -60,13 +60,6 @@
             android:src="@drawable/play_btn" />
     </LinearLayout>
 
-    <WebView
-        android:id="@+id/web_view"
-        android:layout_width="56dp"
-        android:layout_height="match_parent"
-        android:visibility="gone">
-    </WebView>
-
     <LinearLayout
         android:id="@+id/word_list_layout"
         android:layout_width="match_parent"

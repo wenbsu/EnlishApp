@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/test_gradient_bg">
@@ -21,7 +22,7 @@
             android:text="题目 1/10"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/score_view"
@@ -30,7 +31,7 @@
             android:text="Score: 0"
             android:textColor="#FFD700"
             android:textSize="16sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
     </LinearLayout>
 
     <!-- 进度条 -->
@@ -43,7 +44,7 @@
         android:max="10"
         android:progress="1"
         android:progressTint="#4CAF50"
-        android:progressBackgroundTint="#E0E0E0"/>
+        android:progressBackgroundTint="#E0E0E0" />
 
     <!-- 单词显示卡片 -->
     <LinearLayout
@@ -73,7 +74,7 @@
                 android:text="apple"
                 android:textColor="#2C3E50"
                 android:textSize="42sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <!-- 发音按钮 -->
             <ImageView
@@ -85,7 +86,7 @@
                 android:focusable="true"
                 android:padding="8dp"
                 android:src="@android:drawable/ic_lock_silent_mode_off"
-                android:tint="#4A90E2"/>
+                app:tint="#4A90E2" />
         </LinearLayout>
 
         <!-- 提示文本 -->
@@ -99,6 +100,13 @@
             android:textSize="14sp"/>
 
     </LinearLayout>
+
+    <WebView
+        android:id="@+id/test_web_view"
+        android:layout_width="56dp"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+    </WebView>
 
     <!-- 选项区域 -->
     <LinearLayout

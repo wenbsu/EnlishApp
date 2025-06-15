@@ -1,33 +1,28 @@
 package com.liaoyunan.englishapp.activity;
 
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
-import android.util.Log;
 import android.view.View;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.liaoyunan.englishapp.R;
 import com.liaoyunan.englishapp.db.WordDB;
 import com.liaoyunan.englishapp.model.Word;
+import com.liaoyunan.englishapp.utils.AudioPlayerUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by Quhaofeng on 16-5-1.
  */
-public class LearnWordActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
+public class LearnWordActivity extends AppCompatActivity {
     private ListView wordListView;
     private List<Word.RECORDSBean> wordList = new ArrayList<Word.RECORDSBean>();
     /**
@@ -36,19 +31,14 @@ public class LearnWordActivity extends AppCompatActivity implements TextToSpeech
     private List<String> dataList = new ArrayList<String>();
     private ArrayAdapter<String> mAdapter;
     private WordDB wordDB;
-    private WebView mWebView;
     private int mIndex = 0;
     private TextView wordView;
     private TextView meaningView;
     private TextView yinbiaoView;
     private Button showHideBtn;
-    private ImageButton btnPlay; // 添加播放按钮引用
+    private ImageButton btnPlay;
     private String readWord = "word";
     private Word.RECORDSBean defaultWord = new Word.RECORDSBean();
-
-    // 添加TextToSpeech相关变量
-    private TextToSpeech textToSpeech;
-    private boolean isTTSInitialized = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,23 +54,6 @@ public class LearnWordActivity extends AppCompatActivity implements TextToSpeech
         // 设置点击监听器
         setupClickListeners();
 
-        // 保留原有的WebView作为备用方案
-        mWebView = (WebView) findViewById(R.id.web_view);
-        mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public void onProgressChanged(WebView view, int newProgress) {
-                super.onProgressChanged(view, newProgress);
-                Log.w("TAG", "" + newProgress);
-                if (newProgress == 100) {
-                    mWebView.loadUrl("javascript:(function() { var videos = document.getElementsByTagName('video'); for(var i=0;i<videos.length;i++){videos[i].play();}})()");
-                }
-            }
-        });
-
-        // 初始化TextToSpeech
-        textToSpeech = new TextToSpeech(this, this);
-
         init();
     }
 
@@ -93,7 +66,7 @@ public class LearnWordActivity extends AppCompatActivity implements TextToSpeech
         yinbiaoView = (TextView) findViewById(R.id.yinbiao);
         wordListView = (ListView) findViewById(R.id.word_list1);
         showHideBtn = (Button) findViewById(R.id.show_hide_btn);
-        btnPlay = (ImageButton) findViewById(R.id.btn_play); // 初始化播放按钮
+        btnPlay = (ImageButton) findViewById(R.id.btn_play);
 
         mAdapter = new ArrayAdapter<String>(this, R.layout.listview_item, R.id.list_item, dataList);
         wordListView.setAdapter(mAdapter);
@@ -127,34 +100,9 @@ public class LearnWordActivity extends AppCompatActivity implements TextToSpeech
         btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playWord();
+                AudioPlayerUtil.playAudioFromUrl(LearnWordActivity.this, readWord);
             }
         });
-    }
-
-    @Override
-    public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-            // TTS初始化成功，设置语言为美式英语
-            int result = textToSpeech.setLanguage(Locale.US);
-
-            if (result == TextToSpeech.LANG_MISSING_DATA ||
-                    result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.w("TTS", "不支持该语言，将使用备用方案");
-                isTTSInitialized = false;
-                Toast.makeText(this, "语音引擎不支持英语，将使用在线发音", Toast.LENGTH_SHORT).show();
-            } else {
-                // 设置语速和音调
-                textToSpeech.setSpeechRate(0.8f); // 稍慢一点，便于学习
-                textToSpeech.setPitch(1.0f);
-                isTTSInitialized = true;
-                Log.i("TTS", "语音引擎初始化成功");
-            }
-        } else {
-            Log.e("TTS", "语音引擎初始化失败，将使用备用方案");
-            isTTSInitialized = false;
-            Toast.makeText(this, "语音引擎初始化失败，将使用在线发音", Toast.LENGTH_SHORT).show();
-        }
     }
 
     /**
@@ -231,39 +179,6 @@ public class LearnWordActivity extends AppCompatActivity implements TextToSpeech
     }
 
     /**
-     * 播放声音 - 改进版本（保留原方法以兼容XML中的onClick）
-     */
-    public void play(View view) {
-        playWord();
-    }
-
-    /**
-     * 播放单词发音的核心方法
-     */
-    private void playWord() {
-        if (isTTSInitialized && textToSpeech != null) {
-            // 使用TTS播放
-            speakWord(readWord);
-        } else {
-            // 备用方案：使用原来的在线发音
-            mWebView.loadUrl("http://dict.youdao.com/dictvoice?type=2&audio=" + readWord);
-        }
-    }
-
-    /**
-     * 使用TTS播放单词
-     */
-    private void speakWord(String word) {
-        if (textToSpeech != null && isTTSInitialized) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                textToSpeech.speak(word, TextToSpeech.QUEUE_FLUSH, null, null);
-            } else {
-                textToSpeech.speak(word, TextToSpeech.QUEUE_FLUSH, null);
-            }
-        }
-    }
-
-    /**
      * back时回调，存储浏览索引到数据库
      * */
     @Override
@@ -278,11 +193,7 @@ public class LearnWordActivity extends AppCompatActivity implements TextToSpeech
 
     @Override
     protected void onDestroy() {
-        // 释放TTS资源
-        if (textToSpeech != null) {
-            textToSpeech.stop();
-            textToSpeech.shutdown();
-        }
         super.onDestroy();
+        AudioPlayerUtil.release();
     }
 }
