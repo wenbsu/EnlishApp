@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             loadWordsForDate(today);
         }
         if (wordDB.loadMaxIndex() >= 0){
-            learnMax.setText("总共学习了：" + wordDB.loadMaxIndex() + "个单词");
+            learnMax.setText("总共学习了：" + (wordDB.loadMaxIndex() + 1)+ "个单词");
         }
     }
 
@@ -236,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onStart();
         if (wordDB.loadMaxIndex() >= 0){
             int index = wordDB.loadMaxIndex();
-            learnMax.setText("总共学习了：" + index + "个单词");
+            learnMax.setText("总共学习了：" + (index + 1) + "个单词");
         }
     }
 

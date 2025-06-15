@@ -155,6 +155,8 @@ public class LearnWordActivity extends AppCompatActivity {
             mIndex++;
             setWord(wordList.get(mIndex));
             wordListView.setVisibility(View.GONE);
+            // 自动播放当前单词发音
+            AudioPlayerUtil.playAudioFromUrl(LearnWordActivity.this, readWord);
         }
     }
 
@@ -166,6 +168,8 @@ public class LearnWordActivity extends AppCompatActivity {
             mIndex--;
             setWord(wordList.get(mIndex));
             wordListView.setVisibility(View.GONE);
+            // 自动播放当前单词发音
+            AudioPlayerUtil.playAudioFromUrl(LearnWordActivity.this, readWord);
         }
     }
 

@@ -107,17 +107,19 @@ public class WordTestActivity extends AppCompatActivity implements View.OnClickL
 
     public void getTest() {
         if (mRECORDSBeanList != null && !mRECORDSBeanList.isEmpty()) {
-            for (int i = 0; i < mRECORDSBeanList.size(); i++) {
-                WordTest wordTest = new WordTest(this, i, mRECORDSBeanList);
-                List<WordTest.Test> tests = wordTest.getWordFromLib();
-                if (!tests.isEmpty()) {
-                    mTests.add(tests.get(0)); // 每个单词取一个测试题
-                }
-            }
-        }
+            // 使用新的 WordTest 构造方式
+            WordTest wordTest = new WordTest(this, mRECORDSBeanList);
+            mTests = wordTest.generateTests();
 
-        if (!mTests.isEmpty()) {
-            displayTest(mTests.get(testIndex));
+            // 可选：打乱题目顺序
+            Collections.shuffle(mTests);
+
+            if (!mTests.isEmpty()) {
+                displayTest(mTests.get(testIndex));
+            } else {
+                Toast.makeText(this, "生成测试题失败", Toast.LENGTH_LONG).show();
+                finish();
+            }
         } else {
             Toast.makeText(this, "词库为空，无法进行测试", Toast.LENGTH_LONG).show();
             finish();
