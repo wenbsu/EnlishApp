@@ -18,8 +18,10 @@ import com.liaoyunan.englishapp.R;
 import com.liaoyunan.englishapp.db.WordDB;
 import com.liaoyunan.englishapp.model.Word;
 import com.liaoyunan.englishapp.model.WordTest;
+import com.liaoyunan.englishapp.utils.AudioPlayerUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,7 +30,6 @@ import java.util.List;
 public class WordTestActivity extends AppCompatActivity implements View.OnClickListener {
 
     private WordDB wordDB;
-    private WebView mWebView;
     private List<Word.RECORDSBean> mRECORDSBeanList = new ArrayList<>();
     private List<WordTest.Test> mTests = new ArrayList<>();
     private int mIndex;
@@ -61,7 +62,6 @@ public class WordTestActivity extends AppCompatActivity implements View.OnClickL
         // 基本控件
         wordView = findViewById(R.id.test_word);
         scoreView = findViewById(R.id.score_view);
-        mWebView = findViewById(R.id.test_web_view);
         questionProgress = findViewById(R.id.question_progress);
         progressBar = findViewById(R.id.progress_bar);
         speakButton = findViewById(R.id.speak_button);
@@ -95,16 +95,9 @@ public class WordTestActivity extends AppCompatActivity implements View.OnClickL
         mIndex = wordDB.loadIndex();
     }
 
-    /**
-     * 播放单词发音
-     */
-    private void playWord(String word) {
-        if (word != null && !word.isEmpty()) {
-            mWebView.loadUrl("http://dict.youdao.com/dictvoice?type=2&audio=" + word);
-        }
-    }
     private void updateProgress() {
-        questionProgress.setText("题目 " + (testIndex + 1) + "/10");
+        questionProgress.setText("题目 " + (testIndex + 1) + "/" + mTests.size());
+        progressBar.setMax(mTests.size());
         progressBar.setProgress(testIndex + 1);
     }
 
@@ -113,12 +106,21 @@ public class WordTestActivity extends AppCompatActivity implements View.OnClickL
     }
 
     public void getTest() {
-        if (mIndex != -1) {
-            WordTest wordTest = new WordTest(this, mIndex, mRECORDSBeanList);
-            mTests = wordTest.getWordFromLib();
+        if (mRECORDSBeanList != null && !mRECORDSBeanList.isEmpty()) {
+            for (int i = 0; i < mRECORDSBeanList.size(); i++) {
+                WordTest wordTest = new WordTest(this, i, mRECORDSBeanList);
+                List<WordTest.Test> tests = wordTest.getWordFromLib();
+                if (!tests.isEmpty()) {
+                    mTests.add(tests.get(0)); // 每个单词取一个测试题
+                }
+            }
         }
+
         if (!mTests.isEmpty()) {
             displayTest(mTests.get(testIndex));
+        } else {
+            Toast.makeText(this, "词库为空，无法进行测试", Toast.LENGTH_LONG).show();
+            finish();
         }
     }
 
@@ -155,7 +157,7 @@ public class WordTestActivity extends AppCompatActivity implements View.OnClickL
         resetChoiceStyles();
 
         // 自动播放单词发音
-        playWord(currentWord);
+        AudioPlayerUtil.playAudioFromUrl(this, currentWord);
 
         // 更新进度
         updateProgress();
@@ -183,10 +185,11 @@ public class WordTestActivity extends AppCompatActivity implements View.OnClickL
     }
 
     public void nextTest() {
-        testIndex = testIndex + 1;
-        if (testIndex >= 0 && testIndex < 10) {
+        testIndex++;
+        if (testIndex < mTests.size()) {
             displayTest(mTests.get(testIndex));
         } else {
+            // 所有题目做完，跳转到结果页
             Intent intent = new Intent(WordTestActivity.this, CalScoreActivity.class);
             intent.putExtra("score", score);
             startActivity(intent);
@@ -202,7 +205,7 @@ public class WordTestActivity extends AppCompatActivity implements View.OnClickL
 
         int id = v.getId();
         if (id == R.id.speak_button) {
-            playWord(currentWord);
+            AudioPlayerUtil.playAudioFromUrl(this, currentWord);
         } else if (id == R.id.choose_a) {
             testAnswer(R.id.choose_a);
         } else if (id == R.id.choose_b) {

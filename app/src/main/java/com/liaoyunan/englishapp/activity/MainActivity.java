@@ -18,7 +18,9 @@ import com.liaoyunan.englishapp.R;
 import com.liaoyunan.englishapp.db.WordDB;
 import com.liaoyunan.englishapp.model.Word;
 import com.liaoyunan.englishapp.utils.RetrofitRequestUtil;
+import com.liaoyunan.englishapp.utils.WordCacheUtil;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -45,8 +47,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Word myWord;
 
     private List<Word.RECORDSBean> wordList = new ArrayList<Word.RECORDSBean>();
-
-    private List<Word.RECORDSBean> wordBookList = new ArrayList<Word.RECORDSBean>();
 
     private TextView learnMax;
 
@@ -147,55 +147,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        currentUrlPath = "/wenbsu/vocabulary/master/" + dateStr + ".json";
         currentUrlPath = "/vocabulary/" + dateStr + ".json";
 
-        // 清空当前词库
-        wordDB.deleteAll();
+        File cacheFile = WordCacheUtil.getCacheFile(this, dateStr);
 
-        // 显示加载状态
+        if (WordCacheUtil.isCacheValid(cacheFile)) {
+            Word cachedWord = WordCacheUtil.loadWordFromCache(cacheFile);
+            if (cachedWord != null) {
+                wordDB.deleteAll();
+                wordDB.saveWordLib(cachedWord);
+                mTextView.setText("✅ 使用缓存数据：" + dateStr);
+                mTextView.setVisibility(View.VISIBLE);
+                return;
+            }
+        }
+
+        // 没有缓存或读取失败，下载并缓存
+        wordDB.deleteAll();
+        wordDB.saveIndex(0);
         mTextView.setText("⏳ 正在加载 " + dateStr + " 的单词库...");
         mTextView.setVisibility(View.VISIBLE);
-
-        // 重置学习索引
-        wordDB.saveIndex(0);
-
-        // 获取单词库
-        getWordLib();
+        downloadAndCacheWordLib(dateStr, cacheFile);
     }
 
     /**
      * 从网上获取获取单词库 - 使用 RetrofitRequest 替代 GsonRequest
      */
-    public void getWordLib() {
+    public void downloadAndCacheWordLib(String dateStr, File cacheFile) {
         if (!isNetwork(this)) {
             Toast.makeText(this, "网络连接错误", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 使用 RetrofitRequest 发起网络请求
         retrofitRequestUtil.get(currentUrlPath,
                 new RetrofitRequestUtil.ResponseListener<Word>() {
                     @Override
                     public void onResponse(Word word) {
-                        // 请求成功
                         myWord = word;
                         wordDB.saveWordLib(myWord);
-                        mTextView.setText("✅ 词库下载成功");
+                        WordCacheUtil.saveWordToCache(cacheFile, word); // 缓存保存
+                        mTextView.setText("✅ 下载成功并缓存");
                         mTextView.setVisibility(View.VISIBLE);
-
-                        // 可选：记录日志
-                        Log.d("MainActivity", "词库下载成功，单词数量: " +
-                                (word.getRECORDS() != null ? word.getRECORDS().size() : 0));
                     }
                 },
                 new RetrofitRequestUtil.ErrorListener() {
                     @Override
                     public void onError(String error) {
-                        // 请求失败
                         Log.e("MainActivity", "词库下载失败: " + error);
-                        mTextView.setText("❌ 词库下载出错: " + error);
+                        mTextView.setText("❌ 下载失败: " + error);
                         mTextView.setVisibility(View.VISIBLE);
-
-                        // 显示错误提示
-                        Toast.makeText(MainActivity.this, "下载失败，请检查网络连接或该日期的词库是否存在", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

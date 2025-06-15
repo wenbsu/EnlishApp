@@ -78,15 +78,8 @@ public class WordDB {
     public List<Word.RECORDSBean> loadWordLib() {
         List<Word.RECORDSBean> list = new ArrayList<Word.RECORDSBean>();
         Cursor cursor = db.query("WordLib", null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                Word.RECORDSBean word = new Word.RECORDSBean();
-                word.setWord(cursor.getString(cursor.getColumnIndex("word")));
-                word.setYinbiao(cursor.getString(cursor.getColumnIndex("yinbiao")));
-                word.setMeaning(cursor.getString(cursor.getColumnIndex("meaning")));
-                list.add(word);
-            } while (cursor.moveToNext());
-        }
+        List<Word.RECORDSBean> list1 = getRecordsBeans(cursor, list);
+        if (list1 != null) return list1;
         cursor.close();
         return list;
     }
@@ -121,17 +114,31 @@ public class WordDB {
     public List<Word.RECORDSBean> loadWordCelect() {
         List<Word.RECORDSBean> list = new ArrayList<Word.RECORDSBean>();
         Cursor cursor = db.query("WordCollect", null, null, null, null, null, null);
+        List<Word.RECORDSBean> list1 = getRecordsBeans(cursor, list);
+        if (list1 != null) return list1;
+        cursor.close();
+        return list;
+    }
+
+    private static List<Word.RECORDSBean> getRecordsBeans(Cursor cursor, List<Word.RECORDSBean> list) {
         if (cursor.moveToFirst()) {
+            int wordIndex = cursor.getColumnIndex("word");
+            int yinbiaoIndex = cursor.getColumnIndex("yinbiao");
+            int meaningIndex = cursor.getColumnIndex("meaning");
+            if (wordIndex == -1 || yinbiaoIndex == -1 || meaningIndex == -1) {
+                // 打印日志，或抛异常，提醒字段缺失
+                Log.e("WordDB", "WordCollect表缺少必需的列");
+                return list;
+            }
             do {
                 Word.RECORDSBean word = new Word.RECORDSBean();
-                word.setWord(cursor.getString(cursor.getColumnIndex("word")));
-                word.setYinbiao(cursor.getString(cursor.getColumnIndex("yinbiao")));
-                word.setMeaning(cursor.getString(cursor.getColumnIndex("meaning")));
+                word.setWord(cursor.getString(wordIndex));
+                word.setYinbiao(cursor.getString(yinbiaoIndex));
+                word.setMeaning(cursor.getString(meaningIndex));
                 list.add(word);
             } while (cursor.moveToNext());
         }
-        cursor.close();
-        return list;
+        return null;
     }
 
     /**
@@ -183,7 +190,14 @@ public class WordDB {
         int index = 0;
         Cursor cursor = db.query("ViewIndex", null, null, null, null, null, null);
         if (cursor.moveToLast()) {
-            index = cursor.getInt(cursor.getColumnIndex("myIndex"));
+            int indexColumn = cursor.getColumnIndex("myIndex");
+            if (indexColumn != -1) {
+                index = cursor.getInt(indexColumn);
+            } else {
+                Log.e("DB_ERROR", "字段 myIndex 不存在！");
+                // 你可以选择抛异常或使用默认值
+                index = 0; // 默认值
+            }
         } else {
             index = -1;
         }
@@ -195,7 +209,14 @@ public class WordDB {
         int index = 0;
         Cursor cursor = db.query("ViewIndex", null, null, null, null, null, "myIndex");
         if (cursor.moveToLast()) {
-            index = cursor.getInt(cursor.getColumnIndex("myIndex"));
+            int indexColumn = cursor.getColumnIndex("myIndex");
+            if (indexColumn != -1) {
+                index = cursor.getInt(indexColumn);
+            } else {
+                Log.e("DB_ERROR", "字段 myIndex 不存在！");
+                // 你可以选择抛异常或使用默认值
+                index = 0; // 默认值
+            }
         }
         cursor.close();
         return index;

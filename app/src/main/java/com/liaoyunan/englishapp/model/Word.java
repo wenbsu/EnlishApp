@@ -52,4 +52,13 @@ public class Word {
             this.meaning = meaning;
         }
     }
+
+    public static Word fromJson(String json) {
+        return new com.google.gson.Gson().fromJson(json, Word.class);
+    }
+
+    public static String toJson(Word word) {
+        return new com.google.gson.Gson().toJson(word);
+    }
+
 }

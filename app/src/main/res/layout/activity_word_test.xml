@@ -10,9 +10,9 @@
         android:id="@+id/progress_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#AA000000"
         android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="#AA000000">
+        android:padding="16dp">
 
         <TextView
             android:id="@+id/question_progress"
@@ -100,13 +100,6 @@
             android:textSize="14sp"/>
 
     </LinearLayout>
-
-    <WebView
-        android:id="@+id/test_web_view"
-        android:layout_width="56dp"
-        android:layout_height="match_parent"
-        android:visibility="gone">
-    </WebView>
 
     <!-- 选项区域 -->
     <LinearLayout
