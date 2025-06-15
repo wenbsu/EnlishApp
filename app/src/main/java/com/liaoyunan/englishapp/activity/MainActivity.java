@@ -14,10 +14,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.liaoyunan.englishapp.RetrofitRequest;
 import com.liaoyunan.englishapp.R;
 import com.liaoyunan.englishapp.db.WordDB;
 import com.liaoyunan.englishapp.model.Word;
+import com.liaoyunan.englishapp.utils.RetrofitRequestUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,7 +34,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String result = null;
 
     // GitHub Raw 文件的 baseUrl
-    private String baseUrl = "https://raw.githubusercontent.com/";
+//    private String baseUrl = "https://raw.githubusercontent.com/";
+    private String baseUrl = "http://wenbsu.xyz/";
 
     // 动态生成的路径，基于选择的日期
     private String currentUrlPath;
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView learnMax;
 
     // RetrofitRequest 实例
-    private RetrofitRequest<Word> retrofitRequest;
+    private RetrofitRequestUtil<Word> retrofitRequestUtil;
 
     // 日期格式化器
     private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy_MM_dd", Locale.getDefault());
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         // 初始化 RetrofitRequest
-        retrofitRequest = new RetrofitRequest<>(baseUrl, Word.class);
+        retrofitRequestUtil = new RetrofitRequestUtil<>(baseUrl, Word.class);
 
         wordDB = WordDB.getInstance(this);
 
@@ -143,7 +144,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void loadWordsForDate(String dateStr) {
         // 构建对应日期的URL路径
-        currentUrlPath = "/wenbsu/vocabulary/master/" + dateStr + ".json";
+//        currentUrlPath = "/wenbsu/vocabulary/master/" + dateStr + ".json";
+        currentUrlPath = "/vocabulary/" + dateStr + ".json";
 
         // 清空当前词库
         wordDB.deleteAll();
@@ -169,8 +171,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         // 使用 RetrofitRequest 发起网络请求
-        retrofitRequest.get(currentUrlPath,
-                new RetrofitRequest.ResponseListener<Word>() {
+        retrofitRequestUtil.get(currentUrlPath,
+                new RetrofitRequestUtil.ResponseListener<Word>() {
                     @Override
                     public void onResponse(Word word) {
                         // 请求成功
@@ -184,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 (word.getRECORDS() != null ? word.getRECORDS().size() : 0));
                     }
                 },
-                new RetrofitRequest.ErrorListener() {
+                new RetrofitRequestUtil.ErrorListener() {
                     @Override
                     public void onError(String error) {
                         // 请求失败
@@ -243,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         // 清理资源，可选
-        if (retrofitRequest != null) {
+        if (retrofitRequestUtil != null) {
             // 如果 RetrofitRequest 有取消请求的方法，可以在这里调用
         }
     }

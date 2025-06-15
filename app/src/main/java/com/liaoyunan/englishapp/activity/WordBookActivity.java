@@ -217,23 +217,17 @@ public class WordBookActivity extends AppCompatActivity implements RemoveListene
     }
 
     /**
-     * 播放声音 - 改进版本（保留原方法以兼容XML中的onClick）
-     */
-    public void play(View view) {
-        playWord();
-    }
-
-    /**
      * 播放单词发音的核心方法
      */
     private void playWord() {
-        if (isTTSInitialized && textToSpeech != null) {
+        mWebView.loadUrl("http://dict.youdao.com/dictvoice?type=2&audio=" + readWord);
+/*        if (isTTSInitialized && textToSpeech != null) {
             // 使用TTS播放
             speakWord(readWord);
         } else {
             // 备用方案：使用原来的在线发音
             mWebView.loadUrl("http://dict.youdao.com/dictvoice?type=2&audio=" + readWord);
-        }
+        }*/
     }
 
     /**
